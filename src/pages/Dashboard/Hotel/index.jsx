@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import styled from 'styled-components';
 import Typography from '@mui/material/Typography';
-import axios from 'axios';
 import instance from '../../../services/api';
+import axios from 'axios';
 import userContext from '../../../contexts/UserContext';
 
 export default function Hotel({modality, payment}) {
