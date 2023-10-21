@@ -15,7 +15,7 @@ import UserContext from '../../contexts/UserContext';
 import useSignIn from '../../hooks/api/useSignIn';
 
 export default function SignIn() {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('');
 
   const { loadingSignIn, signIn } = useSignIn();
