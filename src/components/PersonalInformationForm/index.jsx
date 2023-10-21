@@ -22,6 +22,9 @@ import { ErrorMsg } from './ErrorMsg';
 import { ufList } from './ufList';
 import FormValidations from './FormValidations';
 
+// Importar o useNavigate para mudar para a página de pagamento após cadastro
+import { useNavigate } from "react-router-dom";
+
 dayjs.extend(CustomParseFormat);
 
 export default function PersonalInformationForm() {
@@ -29,6 +32,9 @@ export default function PersonalInformationForm() {
   const { getCep } = useCep();
   const { enrollment } = useEnrollment();
   const { saveEnrollmentLoading, saveEnrollment } = useSaveEnrollment();
+
+  // Criar a variável navigate
+  const navigate = useNavigate();
 
   const {
     handleSubmit,
@@ -60,6 +66,10 @@ export default function PersonalInformationForm() {
       try {
         await saveEnrollment(newData);
         toast('Informações salvas com sucesso!');
+
+        // Se der certo o cadastro vai para a página de pagamento
+        navigate("/dashboard/payment"); 
+
       } catch (err) {
         console.log(err.response.data.message)
         toast('Não foi possível salvar suas informações!');
