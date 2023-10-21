@@ -1,31 +1,64 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import styled from 'styled-components';
 import Typography from '@mui/material/Typography';
 import axios from 'axios';
 import instance from '../../../services/api';
+import userContext from '../../../contexts/UserContext';
 
-export default function Hotel() {
+export default function Hotel({modality, payment}) {
+  const { userData: {token} } = useContext(userContext)
   const [hotels, setHotels] = useState([]);
-
-  useEffect(() => {
-    axios.get(`${instance}/hotels`)
-      .then(resp => setHotels(resp.data))
-      .catch(erro => alert(erro.response.data.message));
-  }, []);
-
-  // Função para lidar com o clique em um hotel
+  const [selectedHotel, setSelectedHotel] = useState(null);
+  
   const handleHotelClick = (hotelId) => {
-    // Faça algo com o hotel clicado, por exemplo, redirecione para uma página de detalhes do hotel
-    console.log(`Hotel ${hotelId} clicado!`);
+    setSelectedHotel(hotelId);
   };
+
+  const getHotelStyle = (hotelId) => {
+    return {
+      background: selectedHotel === hotelId ? '#FFEED2' : '#EBEBEB',
+    };
+  };
+
+  if (modality === 'presencial' && payment === 'true') {
+    useEffect(() => {
+      const getData = async () => {
+        try {
+          console.log(token);
+          const getHotels = await axios.get(`${instance}/hotels`, { headers: { Authorization: `Bearer ${token}`, },});
+          setHotels(getHotels.data);
+          console.log(getHotels.data);
+        } catch ({response: {data: {message}}}) {
+          alert(message);
+          console.log(message);
+        }
+      }
+      getData();
+    }, [token]);
+  }
+
+  if (modality === 'online') {
+    return (
+      <Error>
+        Sua modalidade de ingresso não inclui hospedagem <br></br>
+        Prossiga para a escolha de atividades
+      </Error>
+    );
+  }
+
+  if (payment === 'false') {
+    return (
+      <Error>
+        Você precisa ter confirmado pagamento antes de fazer a escolha de hospedagem
+      </Error>
+    );
+  }
 
   return (
     <>
       <StyledTypography variant="h4">Escolha de hotel e quarto</StyledTypography>
-      
-      {/* Renderize cada hotel como um botão clicável */}
       {hotels.map((hotel) => (
-        <HotelContainer key={hotel.id} onClick={() => handleHotelClick(hotel.id)}>
+        <HotelContainer key={hotel.id} onClick={() => handleHotelClick(hotel.id)} style={getHotelStyle(hotel.id)}>
           <img src={hotel.image} alt={hotel.name} />
           <h1>{hotel.name}</h1>
           <h2>Tipos de acomodação</h2>
@@ -103,3 +136,14 @@ const HotelContainer = styled.div`
     color: #3C3C3C;
   }
 `;
+
+const Error = styled.div`
+  font-family: Roboto;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 23px;
+  letter-spacing: 0em;
+  text-align: center;
+  color: #8E8E8E;
+
+`
