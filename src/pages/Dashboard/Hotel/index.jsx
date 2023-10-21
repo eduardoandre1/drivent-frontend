@@ -20,22 +20,22 @@ export default function Hotel({modality, payment}) {
     };
   };
 
-  if (modality === 'presencial' && payment === 'true') {
+  // if (modality === 'presencial' && payment === 'true') {
     useEffect(() => {
       const getData = async () => {
         try {
-          console.log(token);
+          console.log('token: ', token);
           const getHotels = await axios.get(`${instance}/hotels`, { headers: { Authorization: `Bearer ${token}`, },});
           setHotels(getHotels.data);
-          console.log(getHotels.data);
+          console.log('hotels: ', getHotels.data);
         } catch ({response: {data: {message}}}) {
           alert(message);
-          console.log(message);
+          console.log('erro: ', message);
         }
       }
       getData();
     }, [token]);
-  }
+  // }
 
   if (modality === 'online') {
     return (
