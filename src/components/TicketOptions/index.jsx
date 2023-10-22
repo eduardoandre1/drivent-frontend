@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Typography from '@mui/material/Typography';
+import TicketOptionButton from './TicketOptionButton';
 import useEnrollment from '../../hooks/api/useEnrollment';
-import axios from "axios";
-
-
+import useTicketTypes from '../../hooks/api/useTicketTypes';
+import useSaveTicket from '../../hooks/api/useSaveTicket';
+import { toast } from 'react-toastify';
 
 export default function TicketOptions() {
 
@@ -16,36 +17,37 @@ export default function TicketOptions() {
     const [ticketPrice, setTicketPrice] = useState(0);
     const [hotelPrice, setHotelPrice] = useState(0);
     const [selectedTicketId, setSelectedTicketId] = useState(null);
+    const { saveTicketLoading, saveTicket } = useSaveTicket();
 
-    const { enrollment } = useEnrollment();    
+    const { enrollment } = useEnrollment();      
+    const { ticketTypes } = useTicketTypes();
 
     useEffect(() => {
         if (enrollment){
             setIsUserRegistered(true);
-        }
+        }       
     }, [enrollment]);
 
-    const selectTicket = (button) => {
+    const selectTicket = (type) => {
 
-        if (btnTypeSelected === button) {
+        if (btnTypeSelected === type.name) {
             setBtnTypeSelected(null);
             setIsTypeTicketSelected(false);
-            setIsHotelSelected(false);
             setTicketPrice(0);
             setHotelPrice(0);
+            setSelectedTicketId(null)
         } 
         else {
-            setBtnTypeSelected(button);
-            if (button === 'remote'){
+            setBtnTypeSelected(type.name);
+            setSelectedTicketId(type.id)
+            if (type.includesHotel === false){
                 setIsTypeTicketSelected(false);
-                setIsHotelSelected(true);
-                setTicketPrice(100);
+                setTicketPrice(type.price);
                 setHotelPrice(0);
             }
             else {
                 setIsTypeTicketSelected(true);
-                setTicketPrice(250);
-                setIsHotelSelected(false);
+                setTicketPrice(type.price);
                 setBtnHotelSelected(null);
             }
         }
@@ -70,6 +72,24 @@ export default function TicketOptions() {
         }
     }
 
+    const ticketData = {
+        ticketTypeId: selectedTicketId
+    }
+
+    async function bookTicket (ticketData){
+
+        try {
+            await saveTicket(ticketData);
+            toast('Ingresso reservado com sucesso!');  
+            // Se der certo vai para o pagamento do ingresso
+            // navigate("/dashboard/payment");   
+        } catch (err) {
+            console.log(err.response.data.message)
+            toast('Não foi possível reservar o ingresso!');
+        }
+    }
+
+/*
     function ticketChosen() {
 
         const url = `${import.meta.env.VITE_API_URL}/tickets/`;
@@ -92,7 +112,7 @@ export default function TicketOptions() {
     
           });
       }
-
+*/
     return (
         <>
         <StyledTypography variant="h4">Ingresso e Pagamento</StyledTypography>
@@ -105,35 +125,32 @@ export default function TicketOptions() {
             </UnregisteredUserWarning>
         
             <TicketSelection>
-                <TicketType isOpen={isUserRegistered}>
+                <TicketType isopen={isUserRegistered}>
                     <h5> Primeiro escolha a sua modalidade de ingresso </h5>
-                    <Typebtn isSelected={btnTypeSelected === 'inPerson'} onClick={() => selectTicket('inPerson')}> 
-                        <p> Presencial </p>
-                        <p className='price'> R$ 250 </p>
-                    </Typebtn>
-                    <Typebtn isSelected={btnTypeSelected === 'remote'} onClick={() => selectTicket('remote')} > 
-                        <p> Online </p>
-                        <p className='price'> R$ 100 </p>
-                    </Typebtn>
+                    {ticketTypes ? ticketTypes.map((ticketOption, index) => (
+                        <TicketOptionButton key={index} id={ticketOption.id} name={ticketOption.name} price={ticketOption.price} 
+                        selectFunction={selectTicket} isRemote={ticketOption.isRemote} 
+                        includesHotel={ticketOption.includesHotel} selected={btnTypeSelected} />
+                    )) : null}     
                 </TicketType>                
             </TicketSelection>
 
             <TicketSelection>
-                <TicketHotel isOpen={isTicketTypeSelected} >
+                <TicketHotel isopen={isTicketTypeSelected && btnTypeSelected === 'Presencial'} >
                     <h5> Ótimo! Agora escolha sua modalidade de hospedagem </h5>
-                    <Hotelbtn isSelected={btnHotelSelected === 'noHotel'} onClick={() => selectHotel('noHotel')}> 
+                    <Hotelbtn isselected={btnHotelSelected === 'noHotel'} onClick={() => selectHotel('noHotel')}> 
                         <p> Sem hotel </p>
                         <p className='price'> + R$ 0 </p>
                     </Hotelbtn>
-                    <Hotelbtn isSelected={btnHotelSelected === 'includeHotel'} onClick={() => selectHotel('includeHotel')}> 
+                    <Hotelbtn isselected={btnHotelSelected === 'includeHotel'} onClick={() => selectHotel('includeHotel')}> 
                         <p> Com hotel </p>
                         <p className='price'> + R$ 350 </p>
                     </Hotelbtn>
                 </TicketHotel>      
 
-                <CloseTicketSelection isOpen={isHotelSelected}>
+                <CloseTicketSelection isopen={isHotelSelected || (btnTypeSelected === 'Online')}>
                     <h5> Fechado! O total ficou em <span> R${ticketPrice + hotelPrice} </span>. Agora é só confirmar! </h5>
-                    <button onClick={() => ticketChosen()} > RESERVAR INGRESSO </button>
+                    <button onClick={() => bookTicket(ticketData)} > RESERVAR INGRESSO </button>
                 </CloseTicketSelection>   
             </TicketSelection>            
         </>
@@ -175,15 +192,15 @@ const TicketSelection = styled.div`
 `;
 
 const Typebtn = styled.button`
-    background-color: ${props => (props.isSelected ? '#FFEED2' : '#FFFFFF')};
+    background-color: ${props => (props.isselected ? '#FFEED2' : '#FFFFFF')};
 `
 const Hotelbtn = styled.button`
-    background-color: ${props => (props.isSelected ? '#FFEED2' : '#FFFFFF')};
+    background-color: ${props => (props.isselected ? '#FFEED2' : '#FFFFFF')};
 `
 
 const CloseTicketSelection = styled.div`
 
-    display: ${props => (props.isOpen ? 'block' : 'none')};
+    display: ${props => (props.isopen ? 'block' : 'none')};
 
     h5 {
         font-size: 20px;
@@ -228,8 +245,8 @@ const UnregisteredUserWarning = styled.div`
 
 `
 const TicketType = styled.div`
-    display: ${props => (props.isOpen ? 'block' : 'none')};
+    display: ${props => (props.isopen ? 'block' : 'none')};
 `
 const TicketHotel= styled.div`
-    display: ${props => (props.isOpen ? 'block' : 'none')};
+    display: ${props => (props.isopen ? 'block' : 'none')};
 `
