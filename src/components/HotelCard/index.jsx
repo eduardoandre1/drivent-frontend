@@ -161,7 +161,7 @@ export default function HotelCard() {
     return (
         <>
             <StyledTypography variant="h4">Escolha de hotel e quarto</StyledTypography>
-            {hotels.length === 0 && <p>Carregando hotéis...</p>}
+            {/* {hotels.length === 0 && <p>Carregando hotéis...</p>} */}
 
 
             {!shouldRenderHotels && (
@@ -173,7 +173,7 @@ export default function HotelCard() {
             )}
 
             {shouldRenderHotels && ticket.TicketType.includesHotel === true && ticket.status === 'PAID' && (
-                <>
+                <HotelsContainer>
                     {hotelsWithRooms.map((hotel, index) => (
                         <HotelContainer key={index} onClick={() => selectHotel(index)} selected={selectedHotel === hotel.id}>
                             <img src={hotel.image} alt={hotel.name} />
@@ -184,7 +184,7 @@ export default function HotelCard() {
                             <h3>{countRooms(hotel.Rooms)}</h3>
                         </HotelContainer>
                     ))}
-                </>
+                </HotelsContainer>
             )}
         </>
     );
@@ -256,6 +256,10 @@ const HotelContainer = styled.div`
         color: #3C3C3C;
     }
 `;
+
+const HotelsContainer = styled.div`
+    display: flex;
+`
 
 const Error = styled.div`
     font-family: Roboto;
