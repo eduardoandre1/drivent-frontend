@@ -12,7 +12,7 @@ import api from '../../services/api'
 const mockHotel = {
     id: 1,  
     name: 'Hotel ABC',
-    image: 'hotel_image.jpg',
+    image: 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.istockphoto.com%2Fphoto%2Fluxury-resort-gm104731717-11404102&psig=AOvVaw1c-amNpmZaKXdEk9aEpMXN&ust=1698121832884000&source=images&cd=vfe&ved=0CBEQjRxqFwoTCKDkufaqi4IDFQAAAAAdAAAAABAE.jpg',
     createdAt: new Date(),
     updatedAt: new Date(),
 };
