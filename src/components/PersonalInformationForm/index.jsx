@@ -21,6 +21,8 @@ import { InputWrapper } from './InputWrapper';
 import { ErrorMsg } from './ErrorMsg';
 import { ufList } from './ufList';
 import FormValidations from './FormValidations';
+import { Navigate } from 'react-router-dom';
+
 
 // Importar o useNavigate para mudar para a página de pagamento após cadastro
 import { useNavigate } from "react-router-dom";
@@ -137,6 +139,11 @@ export default function PersonalInformationForm() {
       });
     }
   };
+
+  function redirectPage() {
+    const rota = '/dashboard/hotel'
+    return <Navigate to={rota} />
+  }
 
   return (
     <>
@@ -274,7 +281,7 @@ export default function PersonalInformationForm() {
           </InputWrapper>
 
           <SubmitContainer>
-            <Button type="submit" disabled={dynamicInputIsLoading || saveEnrollmentLoading}>
+            <Button type="submit" disabled={dynamicInputIsLoading || saveEnrollmentLoading} onClick={redirectPage}>
               Salvar
             </Button>
           </SubmitContainer>
