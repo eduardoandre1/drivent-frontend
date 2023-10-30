@@ -178,7 +178,7 @@ export default function HotelCard() {
                         <HotelContainer key={index} onClick={() => selectHotel(index)} selected={selectedHotel === hotel.id}>
                             <img src={hotel.image} alt={hotel.name} />
                             <h1>{hotel.name}</h1>
-                            <h2>Tipos de acomodação</h2>
+                            <h2>Tipos de acomodação:</h2>
                             <h3>{verifyRoomTypes(hotel.Rooms)}</h3>
                             <h2>Vagas disponíveis:</h2>
                             <h3>{countRooms(hotel.Rooms)}</h3>
@@ -206,8 +206,7 @@ const HotelContainer = styled.div`
     display: flex;
     flex-direction: column;
     cursor: pointer;
-    /* justify-content: space-around;
-    align-items: center; */
+
     div {
         margin-left: 14px;
         margin-top: 10px;
@@ -259,6 +258,7 @@ const HotelContainer = styled.div`
 
 const HotelsContainer = styled.div`
     display: flex;
+    gap: 20px;
 `
 
 const Error = styled.div`
